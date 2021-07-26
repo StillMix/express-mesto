@@ -14,7 +14,10 @@ module.exports.deleteCard = (req, res) => {
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => {
+      res.status(400).send({ message: 'Переданны некоректные данные' });
+      res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 // eslint-disable-next-line no-undef
@@ -25,17 +28,29 @@ module.exports.createCard = (req, res) => {
   Card.create({ name, link })
     // eslint-disable-next-line no-shadow
     .then((Card) => res.send({ data: Card }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => {
+      res.status(400).send({ message: 'Переданны некоректные данные' });
+      res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $addToSet: { likes: req.user._id } },
-  { new: true },
+  { new: true }
+    .catch(() => {
+      res.status(400).send({ message: 'Переданны некоректные данные' });
+      res.status(500).send({ message: 'Произошла ошибка' });
+    }),
 );
 
 module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $pull: { likes: req.user._id } },
-  { new: true },
+  { new: true }
+    .catch(() => {
+      res.status(404).send({ message: 'Пользователь не найден' });
+      res.status(400).send({ message: 'Переданны некоректные данные' });
+      res.status(500).send({ message: 'Произошла ошибка' });
+    }),
 );

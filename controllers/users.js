@@ -6,21 +6,30 @@ module.exports.getUser = (req, res) => {
   User.findById(req.params.id)
     .then((users) => res.send({ data: users }))
     // eslint-disable-next-line no-unused-vars
-    .catch((err) => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      res.status(400).send({ message: 'Переданны некоректные данные' });
+      res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 module.exports.patchInfoUser = (req, res) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about })
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => {
+      res.status(400).send({ message: 'Переданны некоректные данные' });
+      res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 module.exports.patchAvatarUser = (req, res) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar })
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => {
+      res.status(400).send({ message: 'Переданны некоректные данные' });
+      res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 // eslint-disable-next-line no-undef
@@ -37,5 +46,8 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     // eslint-disable-next-line no-shadow
     .then((User) => res.send({ data: User }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => {
+      res.status(400).send({ message: 'Переданны некоректные данные' });
+      res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
