@@ -7,8 +7,19 @@ module.exports.getUser = (req, res) => {
     .then((users) => res.send({ data: users }))
     // eslint-disable-next-line no-unused-vars
     .catch((err) => {
-      res.status(400).send({ message: 'Переданны некоректные данные' });
-      res.status(500).send({ message: 'Произошла ошибка' });
+      if (err.name === 'ValidationError') {
+        res.status(400).send({
+          message: 'Переданы некорректные данные при создании пользователя.',
+        });
+      }
+      if (err.name === 'CastError') {
+        res.status(404).send({
+          message: 'Пользователь не найден.',
+        });
+      }
+      res.status(500).send({
+        message: 'Ошибка по умолчанию.',
+      });
     });
 };
 
@@ -16,9 +27,20 @@ module.exports.patchInfoUser = (req, res) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about })
     .then((user) => res.send({ data: user }))
-    .catch(() => {
-      res.status(400).send({ message: 'Переданны некоректные данные' });
-      res.status(500).send({ message: 'Произошла ошибка' });
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({
+          message: 'Переданы некорректные данные при создании пользователя.',
+        });
+      }
+      if (err.name === 'CastError') {
+        res.status(404).send({
+          message: 'Пользователь не найден.',
+        });
+      }
+      res.status(500).send({
+        message: 'Ошибка по умолчанию.',
+      });
     });
 };
 
@@ -26,9 +48,20 @@ module.exports.patchAvatarUser = (req, res) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar })
     .then((user) => res.send({ data: user }))
-    .catch(() => {
-      res.status(400).send({ message: 'Переданны некоректные данные' });
-      res.status(500).send({ message: 'Произошла ошибка' });
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({
+          message: 'Переданы некорректные данные при создании пользователя.',
+        });
+      }
+      if (err.name === 'CastError') {
+        res.status(404).send({
+          message: 'Пользователь не найден.',
+        });
+      }
+      res.status(500).send({
+        message: 'Ошибка по умолчанию.',
+      });
     });
 };
 
@@ -46,8 +79,14 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     // eslint-disable-next-line no-shadow
     .then((User) => res.send({ data: User }))
-    .catch(() => {
-      res.status(400).send({ message: 'Переданны некоректные данные' });
-      res.status(500).send({ message: 'Произошла ошибка' });
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({
+          message: 'Переданы некорректные данные при создании пользователя.',
+        });
+      }
+      res.status(500).send({
+        message: 'Ошибка по умолчанию.',
+      });
     });
 };
