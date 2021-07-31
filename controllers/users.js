@@ -14,11 +14,6 @@ module.exports.getUser = (req, res) => {
     })
     // eslint-disable-next-line no-unused-vars
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({
-          message: 'Переданы некорректные данные при создании пользователя.',
-        });
-      }
       res.status(500).send({
         message: 'Ошибка по умолчанию.',
       });
@@ -44,7 +39,7 @@ module.exports.patchInfoUser = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({
-          message: 'Переданы некорректные данные при создании пользователя.',
+          message: 'Переданы некорректные данные при обновлении пользователя.',
         });
       }
       res.status(500).send({
@@ -72,7 +67,7 @@ module.exports.patchAvatarUser = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({
-          message: 'Переданы некорректные данные при создании пользователя.',
+          message: 'Переданы некорректные данные при обновлении пользователя.',
         });
       }
       res.status(500).send({
