@@ -4,17 +4,19 @@ const User = require('../models/user');
 // eslint-disable-next-line no-undef
 module.exports.getUser = (req, res) => {
   User.findById(req.params.id)
-    .then((users) => res.send({ data: users }))
+    .then((users) => {
+      if (!users) {
+        res.status(404).send({
+          message: 'Пользователь не найден.',
+        });
+      }
+      res.send({ data: users });
+    })
     // eslint-disable-next-line no-unused-vars
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({
           message: 'Переданы некорректные данные при создании пользователя.',
-        });
-      }
-      if (err.name === 'CastError') {
-        res.status(404).send({
-          message: 'Пользователь не найден.',
         });
       }
       res.status(500).send({
@@ -25,17 +27,24 @@ module.exports.getUser = (req, res) => {
 
 module.exports.patchInfoUser = (req, res) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.user._id, { name, about })
-    .then((user) => res.send({ data: user }))
+  User.findByIdAndUpdate(req.user._id, { name, about }, {
+    new: true,
+    runValidators: true,
+    upsert: false,
+  })
+    .then((user) => {
+      if (!user) {
+        res.status(404).send({
+          message: 'Пользователь не найден.',
+        });
+      } else {
+        res.send({ data: user });
+      }
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({
           message: 'Переданы некорректные данные при создании пользователя.',
-        });
-      }
-      if (err.name === 'CastError') {
-        res.status(404).send({
-          message: 'Пользователь не найден.',
         });
       }
       res.status(500).send({
@@ -46,17 +55,24 @@ module.exports.patchInfoUser = (req, res) => {
 
 module.exports.patchAvatarUser = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar })
-    .then((user) => res.send({ data: user }))
+  User.findByIdAndUpdate(req.user._id, { avatar }, {
+    new: true,
+    runValidators: true,
+    upsert: false,
+  })
+    .then((user) => {
+      if (!user) {
+        res.status(404).send({
+          message: 'Пользователь не найден.',
+        });
+      } else {
+        res.send({ data: user });
+      }
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({
           message: 'Переданы некорректные данные при создании пользователя.',
-        });
-      }
-      if (err.name === 'CastError') {
-        res.status(404).send({
-          message: 'Пользователь не найден.',
         });
       }
       res.status(500).send({

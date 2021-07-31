@@ -13,9 +13,9 @@ router.get('/', getCards);
 router.post('/', createCard);
 
 // eslint-disable-next-line no-undef
-router.delete('/', dislikeCard);
+router.delete('/:id/likes', dislikeCard);
 
 // eslint-disable-next-line no-undef
-router.put('/', likeCard);
+router.put('/:id/likes', likeCard);
 
 module.exports = router;

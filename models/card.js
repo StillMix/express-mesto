@@ -1,3 +1,5 @@
+/* eslint-disable quotes */
+/* eslint-disable quote-props */
 const mongoose = require('mongoose');
 
 const cardSchema = new mongoose.Schema({
@@ -18,9 +20,11 @@ const cardSchema = new mongoose.Schema({
   },
   likes: {
     type: Array,
+    default: null,
   },
   createdAt: {
     type: Date,
+    default: Date.now,
   },
 });
 
