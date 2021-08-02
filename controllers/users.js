@@ -14,6 +14,11 @@ module.exports.getUser = (req, res) => {
     })
     // eslint-disable-next-line no-unused-vars
     .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({
+          message: 'Переданы некорректные данные при получении пользователя.',
+        });
+      }
       res.status(500).send({
         message: 'Ошибка по умолчанию.',
       });

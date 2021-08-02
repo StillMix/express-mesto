@@ -16,6 +16,11 @@ module.exports.deleteCard = (req, res) => {
       }
     })
     .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({
+          message: 'Переданы некорректные данные при обновлении пользователя.',
+        });
+      }
       res.status(500).send({
         message: 'Ошибка по умолчанию.',
       });
@@ -27,11 +32,6 @@ module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(404).send({
-          message: 'Карточки не найдены.',
-        });
-      }
       res.status(500).send({
         message: 'Ошибка по умолчанию.',
       });
@@ -74,6 +74,11 @@ module.exports.likeCard = (req, res) => {
       }
     })
     .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({
+          message: 'Переданы некорректные данные при лайке карточки.',
+        });
+      }
       res.status(500).send({
         message: 'Ошибка по умолчанию.',
       });
@@ -95,6 +100,11 @@ module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
     }
   })
   .catch((err) => {
+    if (err.name === 'CastError') {
+      res.status(400).send({
+        message: 'Переданы некорректные данные при дизлайке карточки.',
+      });
+    }
     res.status(500).send({
       message: 'Ошибка по умолчанию.',
     });
