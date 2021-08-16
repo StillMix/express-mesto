@@ -1,7 +1,16 @@
 const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');
+
+const dotenv = require('dotenv');
+
+dotenv.config();
+
 // eslint-disable-next-line import/no-extraneous-dependencies
+const {
+  createUser, login,
+} = require('./controllers/users');
 
 const { PORT = 3000, BASE_PATH } = process.env;
 const app = express();
@@ -19,15 +28,11 @@ app.get('/', (req, res) => {
   res.send('123');
 });
 
+app.use(cookieParser());
 app.use(express.json());
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '60fe8622c67712241066e2d8',
-  };
-
-  next();
-});
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 app.use('/cards', cardsRouter);
 app.use('/users', userRouter);

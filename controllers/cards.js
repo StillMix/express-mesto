@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
@@ -5,14 +6,18 @@ const Card = require('../models/card');
 
 // eslint-disable-next-line no-undef
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.id)
+  Card.findById(req.params.id)
     .then((card) => {
       if (!card) {
         res.status(404).send({
           message: 'Карточка не найдена.',
         });
       } else {
-        res.send({ data: card });
+        if (card.owner === req.user._id) {
+          Card.findByIdAndDelete(card._id)
+            .then((cardDel) => res.send({ data: cardDel }));
+        }
+        return res.status(403).send({ message: 'Можно удалять только свои карточки' });
       }
     })
     .catch((err) => {

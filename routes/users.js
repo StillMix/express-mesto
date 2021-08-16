@@ -1,10 +1,12 @@
 const router = require('express').Router();
 const {
-  getUser, getUsers, createUser, patchAvatarUser, patchInfoUser,
+  getUser, getUsers, patchAvatarUser, patchInfoUser,
 } = require('../controllers/users');
+const { auth } = require('../middlewares/auth');
 
+router.use(auth);
 // eslint-disable-next-line no-undef
-router.get('/:id', getUser);
+router.get('/me', getUser);
 
 // eslint-disable-next-line no-undef
 router.get('/', getUsers);
@@ -13,8 +15,5 @@ router.patch('/me/avatar', patchAvatarUser);
 
 // eslint-disable-next-line no-undef
 router.patch('/me', patchInfoUser);
-
-// eslint-disable-next-line no-undef
-router.post('/', createUser);
 
 module.exports = router;

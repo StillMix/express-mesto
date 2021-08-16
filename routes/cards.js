@@ -2,7 +2,9 @@ const router = require('express').Router();
 const {
   deleteCard, getCards, createCard, likeCard, dislikeCard,
 } = require('../controllers/cards');
+const { auth } = require('../middlewares/auth');
 
+router.use(auth);
 // eslint-disable-next-line no-undef
 router.delete('/:id', deleteCard);
 
