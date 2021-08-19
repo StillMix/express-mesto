@@ -12,7 +12,7 @@ const JWT_SECRET  = process.env.JWT_SECRET;
 
 // eslint-disable-next-line no-undef
 module.exports.getUser = (req, res) => {
-  User.findById(req.user._id)
+  User.findById(req.params.id)
     .then((users) => {
       if (!users) {
         res.status(404).send({
@@ -34,8 +34,39 @@ module.exports.getUser = (req, res) => {
     });
 };
 
+module.exports.getInfoUser = (req, res) => {
+  User.findById(req.user._id)
+    .then((users) => {
+      if (!users) {
+        res.status(404).send({
+          message: 'Пользователь не найден.',
+        });
+      }
+      res.send({ data: users });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({
+          message: 'Переданы некорректные данные при получении пользователя.',
+        });
+      }
+      res.status(500).send({
+        message: 'Ошибка по умолчанию.',
+      });
+    });
+};
+
 module.exports.patchInfoUser = (req, res) => {
   const { name, about } = req.body;
+
+  if (!name || !about) {
+    return res.status(400).send({ message: 'Поле "имя" или "о себе" не указаны' });
+  }
+
+  if (!name === null || !about === null) {
+    return res.status(400).send({ message: 'Поле "имя" или "о себе" не указаны' });
+  }
+
   User.findByIdAndUpdate(req.user._id, { name, about }, {
     new: true,
     runValidators: true,
@@ -80,11 +111,11 @@ module.exports.patchAvatarUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        return res.status(400).send({
           message: 'Переданы некорректные данные при обновлении пользователя.',
         });
       }
-      res.status(500).send({
+      return res.status(500).send({
         message: 'Ошибка по умолчанию.',
       });
     });
@@ -135,7 +166,7 @@ module.exports.createUser = (req, res) => {
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
 
-  return User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password, res)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET);
       res.cookie('jwt', token, {
