@@ -7,6 +7,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const { Errors } = require('../middlewares/errors');
 
 const JWT_SECRET  = process.env.JWT_SECRET;
 
@@ -15,22 +16,13 @@ module.exports.getUser = (req, res) => {
   User.findById(req.params.id)
     .then((users) => {
       if (!users) {
-        res.status(404).send({
-          message: 'Пользователь не найден.',
-        });
+        Errors(res, null, 404);
       }
-      res.send({ data: users });
+      return res.send({ data: users });
     })
     // eslint-disable-next-line no-unused-vars
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(400).send({
-          message: 'Переданы некорректные данные при получении пользователя.',
-        });
-      }
-      res.status(500).send({
-        message: 'Ошибка по умолчанию.',
-      });
+      Errors(res, err);
     });
 };
 
@@ -38,21 +30,12 @@ module.exports.getInfoUser = (req, res) => {
   User.findById(req.user._id)
     .then((users) => {
       if (!users) {
-        res.status(404).send({
-          message: 'Пользователь не найден.',
-        });
+        Errors(res, null, 404);
       }
-      res.send({ data: users });
+      return res.send({ data: users });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(400).send({
-          message: 'Переданы некорректные данные при получении пользователя.',
-        });
-      }
-      res.status(500).send({
-        message: 'Ошибка по умолчанию.',
-      });
+      Errors(res, err);
     });
 };
 
@@ -63,7 +46,7 @@ module.exports.patchInfoUser = (req, res) => {
     return res.status(400).send({ message: 'Поле "имя" или "о себе" не указаны' });
   }
 
-  if (!name === null || !about === null) {
+  if (name === null || about === null) {
     return res.status(400).send({ message: 'Поле "имя" или "о себе" не указаны' });
   }
 
@@ -74,22 +57,12 @@ module.exports.patchInfoUser = (req, res) => {
   })
     .then((user) => {
       if (!user) {
-        res.status(404).send({
-          message: 'Пользователь не найден.',
-        });
-      } else {
-        res.send({ data: user });
+        Errors(res, null, 404);
       }
+      return res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({
-          message: 'Переданы некорректные данные при обновлении пользователя.',
-        });
-      }
-      res.status(500).send({
-        message: 'Ошибка по умолчанию.',
-      });
+      Errors(res, err);
     });
 };
 
@@ -102,22 +75,12 @@ module.exports.patchAvatarUser = (req, res) => {
   })
     .then((user) => {
       if (!user) {
-        res.status(404).send({
-          message: 'Пользователь не найден.',
-        });
-      } else {
-        res.send({ data: user });
+        Errors(res, null, 404);
       }
+      return res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({
-          message: 'Переданы некорректные данные при обновлении пользователя.',
-        });
-      }
-      return res.status(500).send({
-        message: 'Ошибка по умолчанию.',
-      });
+      Errors(res, err);
     });
 };
 
@@ -125,7 +88,7 @@ module.exports.patchAvatarUser = (req, res) => {
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((Users) => res.send({ data: Users }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => Errors(res, err));
 };
 
 // eslint-disable-next-line no-undef
@@ -150,14 +113,7 @@ module.exports.createUser = (req, res) => {
           })
             .then((user) => res.status(201).send(user))
             .catch((err) => {
-              if (err.name === 'ValidationError') {
-                res.status(400).send({
-                  message: 'Переданы некорректные данные при обновлении пользователя.',
-                });
-              }
-              res.status(500).send({
-                message: 'Ошибка по умолчанию.',
-              });
+              Errors(res, err);
             });
         });
     });
@@ -176,13 +132,6 @@ module.exports.login = (req, res) => {
         .status(200).send({ user: user.toJSON() });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({
-          message: 'Переданы некорректные данные при обновлении пользователя.',
-        });
-      }
-      res.status(500).send({
-        message: 'Ошибка по умолчанию.',
-      });
+      Errors(res, err);
     });
 };
