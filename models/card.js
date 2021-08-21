@@ -1,7 +1,8 @@
+/* eslint-disable no-console */
 /* eslint-disable quotes */
 /* eslint-disable quote-props */
 const mongoose = require('mongoose');
-const validator = require('mongoose-validator');
+const validator = require('validator');
 
 const cardSchema = new mongoose.Schema({
   name:
@@ -16,15 +17,20 @@ const cardSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: (ava) => validator.isURL(ava),
+      validator: (ava) => validator.isURL(ava, { protocols: ['http', 'https', 'ftp'], require_tld: true, require_protocol: true }),
       message: 'Неверная ссылка',
     },
   },
-  director: {
+  owner: {
     type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
+    required: true,
   },
   likes: {
-    type: Array,
+    type: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user',
+    }],
     default: null,
   },
   createdAt: {

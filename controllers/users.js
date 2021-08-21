@@ -7,47 +7,55 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { Errors } = require('../middlewares/errors');
+const NotFoundError = require('../middlewares/errors/NotFoundError');
+const BadRequest = require('../middlewares/errors/BadRequest');
+const Conflict = require('../middlewares/errors/Conflict');
 
 const JWT_SECRET  = process.env.JWT_SECRET;
 
 // eslint-disable-next-line no-undef
-module.exports.getUser = (req, res) => {
+module.exports.getUser = (req, res, next) => {
   User.findById(req.params.id)
     .then((users) => {
       if (!users) {
-        Errors(res, null, 404);
+        next(new NotFoundError('Нет пользователя с таким id'));
       }
       return res.send({ data: users });
     })
     // eslint-disable-next-line no-unused-vars
     .catch((err) => {
-      Errors(res, err);
+      if (err.name === 'CastError') {
+        next(new BadRequest('Переданы некорректные данные при получении пользователя.'));
+      }
+      next(err);
     });
 };
 
-module.exports.getInfoUser = (req, res) => {
+module.exports.getInfoUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((users) => {
       if (!users) {
-        Errors(res, null, 404);
+        next(new NotFoundError('Нет пользователя с таким id'));
       }
       return res.send({ data: users });
     })
     .catch((err) => {
-      Errors(res, err);
+      if (err.name === 'CastError') {
+        next(new BadRequest('Переданы некорректные данные при получении пользователя.'));
+      }
+      next(err);
     });
 };
 
-module.exports.patchInfoUser = (req, res) => {
+module.exports.patchInfoUser = (req, res, next) => {
   const { name, about } = req.body;
 
   if (!name || !about) {
-    return res.status(400).send({ message: 'Поле "имя" или "о себе" не указаны' });
+    next(new BadRequest('Поле "имя" или "о себе" не указаны'));
   }
 
   if (name === null || about === null) {
-    return res.status(400).send({ message: 'Поле "имя" или "о себе" не указаны' });
+    next(new BadRequest('Поле "имя" или "о себе" не указаны'));
   }
 
   User.findByIdAndUpdate(req.user._id, { name, about }, {
@@ -57,16 +65,19 @@ module.exports.patchInfoUser = (req, res) => {
   })
     .then((user) => {
       if (!user) {
-        Errors(res, null, 404);
+        next(new NotFoundError('Нет пользователя с таким id'));
       }
       return res.send({ data: user });
     })
     .catch((err) => {
-      Errors(res, err);
+      if (err.name === 'ValidationError') {
+        next(new BadRequest('Переданы некорректные данные при получении пользователя.'));
+      }
+      next(err);
     });
 };
 
-module.exports.patchAvatarUser = (req, res) => {
+module.exports.patchAvatarUser = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, {
     new: true,
@@ -75,34 +86,37 @@ module.exports.patchAvatarUser = (req, res) => {
   })
     .then((user) => {
       if (!user) {
-        Errors(res, null, 404);
+        next(new NotFoundError('Нет пользователя с таким id'));
       }
       return res.send({ data: user });
     })
     .catch((err) => {
-      Errors(res, err);
+      if (err.name === 'ValidationError') {
+        next(new BadRequest('Переданы некорректные данные при получении пользователя.'));
+      }
+      next(err);
     });
 };
 
 // eslint-disable-next-line no-undef
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((Users) => res.send({ data: Users }))
-    .catch((err) => Errors(res, err));
+    .catch(next);
 };
 
 // eslint-disable-next-line no-undef
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).send({ message: 'Email или пароль не указаны' });
+    next(new BadRequest('Email или пароль не указаны'));
   }
 
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        return res.status(409).send({ message: 'Пользователь уже создан' });
+        next(new Conflict('Пользователь уже создан'));
       }
 
       bcrypt.hash(password, 10)
@@ -113,16 +127,19 @@ module.exports.createUser = (req, res) => {
           })
             .then((user) => res.status(201).send(user))
             .catch((err) => {
-              Errors(res, err);
+              if (err.name === 'ValidationError') {
+                next(new BadRequest('Переданы некорректные данные при получении пользователя.'));
+              }
+              next(err);
             });
         });
     });
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
-  return User.findUserByCredentials(email, password, res)
+  return User.findUserByCredentials(email, password, res, next)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET);
       res.cookie('jwt', token, {
@@ -132,6 +149,9 @@ module.exports.login = (req, res) => {
         .status(200).send({ user: user.toJSON() });
     })
     .catch((err) => {
-      Errors(res, err);
+      if (err.name === 'ValidationError') {
+        next(new BadRequest('Переданы некорректные данные при получении пользователя.'));
+      }
+      next(err);
     });
 };

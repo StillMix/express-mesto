@@ -4,9 +4,7 @@ const { celebrate, Joi } = require('celebrate');
 const {
   getUser, getUsers, patchAvatarUser, getInfoUser, patchInfoUser,
 } = require('../controllers/users');
-const { auth } = require('../middlewares/auth');
 
-router.use(auth);
 // eslint-disable-next-line no-undef
 router.get('/me', getInfoUser);
 

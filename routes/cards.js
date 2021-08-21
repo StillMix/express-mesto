@@ -1,10 +1,10 @@
 const router = require('express').Router();
+const { celebrate, Joi } = require('celebrate');
+
 const {
   deleteCard, getCards, createCard, likeCard, dislikeCard,
 } = require('../controllers/cards');
-const { auth } = require('../middlewares/auth');
 
-router.use(auth);
 // eslint-disable-next-line no-undef
 router.delete('/:id', deleteCard);
 
@@ -12,7 +12,12 @@ router.delete('/:id', deleteCard);
 router.get('/', getCards);
 
 // eslint-disable-next-line no-undef
-router.post('/', createCard);
+router.post('/', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required().uri(),
+  }),
+}), createCard);
 
 // eslint-disable-next-line no-undef
 router.delete('/:id/likes', dislikeCard);
